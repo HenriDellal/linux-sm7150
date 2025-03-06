@@ -1,0 +1,98 @@
+// SPDX-License-Identifier: GPL-2.0-only
+
+/dts-v1/;
+
+#include "sm7150.dtsi"
+
+/delete-node/ &xbl_mem;
+/delete-node/ &aop_mem;
+/delete-node/ &aop_cmd_db_mem;
+/delete-node/ &tz_mem;
+
+/ {
+	model = "Motorola G60";
+	compatible = "motorola,hanoip", "qcom,sm7150";
+	chassis-type = "handset";
+
+	qcom,msm-id = <0x16d 0>;
+	qcom,board-id = <76 0xb200>; //or <76 0>?
+
+	battery: battery {
+		compatible = "simple-battery";
+		
+		//voltage-min-design-microvolt = <3500000>; //FIXME
+		voltage-max-design-microvolt = <4450000>;
+		charge-full-design-microamp-hours = <6000000>;
+	};
+	
+	/*gpio-keys {
+		
+	};*/
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+		xbl_aop_mem: memory@85e00000 {
+			reg = <0x0 0x85e00000 0x0 0x1ff000>;
+			no-map;
+		};
+
+		tz_mem: trust-zone@86200000 {
+			reg = <0x0 0x86200000 0x0 0x4100000>;
+			no-map;
+		};
+
+		framebuffer_region@9c000000 {
+			reg = <0x0 0x9c000000 0x0 (1080 * 2460 * 4)>;
+			no-map;
+		};
+
+		mmi_annotate_mem: memory@aefa1800 {
+			reg = <0x0 0xaefa1800 0x0 0x800>;
+			no-map;
+		};
+		
+		tzlog_dump_mem: memory@aefa2000 {
+			reg = <0x0 0xaefa2000 0x0 0x30000>;
+			no-map;
+		};
+		
+		wdog_cpuctx_mem: memory@aefd2000 {
+			reg = <0x0 0xaefd2000 0x0 0x2e000>;
+			no-map;
+		};
+		
+		ramoops@af000000 {
+			reg = <0x0 0xaf000000 0x0 0xbf800>;
+			no-map;
+
+			console-size = <0x40000>;
+			pmsg-size = <0x40000>;
+			record-size = <0x3f800>;
+		};
+	};
+
+	chosen {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		stdout-path = "fb0";
+
+		fb0: framebuffer@9c000000 {
+			compatible = "simple-framebuffer";
+			reg = <0x0 0x9c000000 0x0 (1080 * 2460 * 4)>;
+			width = <1080>;
+			height = <2460>;
+			stride = <(1080 * 4)>;
+			format = "a8r8g8b8";
+			clocks = <&gcc GCC_DISP_HF_AXI_CLK>,
+				 <&gcc GCC_DISP_SF_AXI_CLK>;
+		};
+	};
+};
+
+&tlmm {
+	gpio-reserved-ranges = <0 4>, <59 4>;
+};
